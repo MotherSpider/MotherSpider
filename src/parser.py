@@ -41,7 +41,7 @@ def cleanup():
 	printToFile(logFile, "Parse Completed")
 	for count in range(9):
 		printToFile(files[count], "Total: " + str(counts[count]), False)
-		printToFile(logFile, "---------------------------------------------------------------")
+		printToFile(files[count], "---------------------------------------------------------------")
 		files[count].close()
 
 def parse():
