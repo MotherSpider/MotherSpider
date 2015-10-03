@@ -75,7 +75,7 @@ def parse():
 		printToFile(logFile, metadata)
 		if 'Content-Type=image' in metadata:
 			totalImages += 1
-			printToFile(imageFile, url)
+			printToFile(imageFile, url+"\n", False)
 
 		status = resultDic['Status'].split(' ')
 		statusCode = int(status[1])
