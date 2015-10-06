@@ -1,20 +1,16 @@
-crawlFolder=$1
+echo "Stats script Started"
 
-time1=time
+crawlFolder=$1
 
 python parser.py $crawlFolder $NUTCH_HOME
 
-$NUTCH_HOME/bin/nutch readdb $crawlFolder/crawldb -stats >> $crawlFolder/statistics/stats
+$NUTCH_HOME/bin/nutch readdb $crawlFolder/crawldb -stats | tee $crawlFolder/statistics/stats
 
-while read line           
-do  
-	echo $line >> $crawlFolder/statistics/unfetchedReasons.txt         
-    $NUTCH_HOME/bin/nutch parsechecker $line >> $crawlFolder/statistics/unfetchedReasons.txt
-    echo "\n" >> $crawlFolder/statistics/unfetchedReasons.txt            
-done <$crawlFolder/statistics/unfetched
+grep -i "fetch of" $NUTCH_HOME/logs/* > $crawlFolder/statistics/errors
 
-time2=time
+python error.py $crawlFolder/statistics/errors
 
-echo time1
-echo "\n"
-echo time2
+rm $crawlFolder/statistics/errors
+
+echo "Stats script completed"
+
