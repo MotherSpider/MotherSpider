@@ -1,5 +1,6 @@
 package com.usc.solr.algos;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -26,13 +27,12 @@ import edu.uci.ics.jung.graph.DirectedSparseGraph;
 
 /**
  * Class which implements Link Relevancy algorithm
- * 
  */
 public class WeaponsRelevancyAlgorithm {
 
-	static String pathToFlattenedJson = "/home/ash/flattenedJson/";
+	static String pathToFlattenedJson = "/home/ash/jsons/";
 
-	static String pathToInlinks = "/home/ash/inlinks.txt";
+	static String pathToInlinks = "/home/ash/inlinks/1555.txt";
 
 	static String pathToOutlinks = "/home/ash/outlinks.txt"; 
 
@@ -75,7 +75,7 @@ public class WeaponsRelevancyAlgorithm {
 	 * @param file
 	 * @throws ParseException 
 	 */
-	public void fileToBean(String file) throws ParseException {
+	public void fileToBean(String file, Double lat, Double lon) throws ParseException {
 		String line;
 		int recordId = 0;
 		String url = "";
@@ -86,43 +86,22 @@ public class WeaponsRelevancyAlgorithm {
 		String organization = "";
 		String person = "";
 		String date = "";
-		// reading individual records from file and populating Record Bean
-		Double lat=0.0;
-		Double lon=0.0;
-		try {
-			JSONParser parser = new JSONParser();	  
-			  Object obj = parser.parse(new FileReader(file));
+		//			  lat = (Double)rec.get("geonames_address.geo.lat");
+//			  lon = (Double)rec.get("geonames_address.geo.lon");
+//			  url= (String)rec.get("url");
+		  if(lat!=null && lon!=null)
+		  {
+		  Long latTemp=Math.round((lat * 10)/10);
+		  Long lonTemp=Math.round((lon * 10)/10);
+		  
+		    System.out.println(latTemp);
+		    System.out.println(lonTemp);
+				Record38 rc = new Record38(latTemp,lonTemp,url);
+				lat=0.0;
+				lon=0.0;
 
-			  JSONObject rec = (JSONObject) obj;
-			  System.out.println(rec.get("url"));
-			  
-			  if(rec.get("url")!="")
-			  {
-			  
-			  lat = (Double)rec.get("geonames_address.geo.lat");
-			  lon = (Double)rec.get("geonames_address.geo.lon");
-			  url= (String)rec.get("url");
-			  if(lat!=null && lon!=null)
-			  {
-			  Long latTemp=Math.round((lat * 10)/10);
-			  Long lonTemp=Math.round((lon * 10)/10);
-			  
-			    System.out.println(latTemp);
-			    System.out.println(lonTemp);
-					Record38 rc = new Record38(latTemp,lonTemp,url);
-					lat=0.0;
-					lon=0.0;
-
-					recordsToMap(rc);
-			  }
-			  }
-		}
-		
-	
-		 catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				recordsToMap(rc);
+		  }
 
 	}
 
@@ -200,11 +179,31 @@ public class WeaponsRelevancyAlgorithm {
 		GraphUtil myGraphUtil = new GraphUtil();
 		File folder = new File(pathToFlattenedJson);
 		File[] listOfFiles = folder.listFiles();
+		JSONParser parser = new JSONParser();	  
+		Object obj = null;
 		for (File file : listOfFiles) {
+			FileReader fr = null;
+			try {
+				fr = new FileReader(file);
+				obj = parser.parse(fr);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			JSONObject rec = (JSONObject) obj;
+			  
+			  if(rec.get("url")!="")
+			  {
+				  Double lat = (Double)rec.get("geonames_address.geo.lat");
+				  Double lon = (Double)rec.get("geonames_address.geo.lon");
 
-			myAlgo.fileToBean(pathToFlattenedJson+file.getName());
-
-		}
+				  myAlgo.fileToBean(pathToFlattenedJson+file.getName(), lat, lon);
+			  }
+			  else {
+				  continue;
+			  }
+			  fr = null;		}
 		// read inlink file
 		String inline = "";
 		
@@ -219,7 +218,7 @@ public class WeaponsRelevancyAlgorithm {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// read outlink file
+//		 read outlink file
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(
 					pathToOutlinks));
