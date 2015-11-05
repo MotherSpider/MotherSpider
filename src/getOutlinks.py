@@ -32,7 +32,7 @@ for rec in recordList:
         if (len(mainURL) != 0 and len(linkList) != 0):
             writefile = open("allOutlinks/"+str(count)+".txt", "w")
             for url in linkList:
-                writefile.write(mainURL+"	"+url+"\n");
+                writefile.write(mainURL+" "+url+"\n");
 	    writefile.close()            
     count = count+1 
         
